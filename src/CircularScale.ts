@@ -1,32 +1,46 @@
 import { AbstractCanvas } from "./AbstractCanvas";
+import { rad2deg } from "./utils";
 
-//-----------------------Abhishek--------------------------
 export class CircularScale extends AbstractCanvas {
   private color = "#adadad";
   private pointerColor = "#EFB75E";
   private offX = 0;
-  private x = 0;
+  private angle = 0;
+  private maxValue = 360;
 
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
     this.redraw();
+
+   
   }
+
+  setAngle(angle: number) {
+    this.angle = angle;
+    this.angle = ((this.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
+    this.redraw();
+  }
+
   protected override onMouseDown(x: number, y: number): void {
-    this.offX = x - this.x;
+    this.offX = x;
   }
 
   protected override onDrag(x: number, y: number): void {
-    this.x = x - this.offX;
+    const deltaX = -(x - this.offX);
+    const angleChange = deltaX / 300; // Adjust divisor for sensitivity
+    this.angle += angleChange;
+    this.angle = ((this.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    this.offX = x;
     this.redraw();
   }
+
   protected override onDraw(ctx: CanvasRenderingContext2D): void {
     super.onDraw(ctx);
-
     ctx.save();
     ctx.translate(0, this.canvas.height * 0.8);
     this.drawRuler(ctx);
     ctx.restore();
-
     this.drawMarker(ctx);
   }
 
@@ -42,17 +56,13 @@ export class CircularScale extends AbstractCanvas {
     ctx.strokeStyle = this.color;
     ctx.fillStyle = this.color;
 
-    // Draw horizontal and vertical axis for reference
-    // this.drawLine(ctx, 0, centerY, width, centerY);
-    // this.drawLine(ctx, centerX, 0, centerX, height);
-
     ctx.translate(centerX, centerY);
-    ctx.rotate((this.x * Math.PI) / 180);
+    ctx.rotate(-this.angle - Math.PI / 2);
+    console.log(this.angle * rad2deg);
 
     this.drawCircle(ctx, 0, 0, radius);
     this.drawCircle(ctx, 0, 0, radius - 100);
 
-    // Scale parameters
     const smallLineLen = 10;
     const medLineLen = 20;
     const bigLineLen = 30;
@@ -64,7 +74,6 @@ export class CircularScale extends AbstractCanvas {
       const xOuter = radius * Math.cos(angle);
       const yOuter = radius * Math.sin(angle);
 
-      // Determine the length of the mark (small, medium, big)
       let lineLen;
       if (i % 10 === 0) {
         lineLen = bigLineLen;
@@ -77,43 +86,37 @@ export class CircularScale extends AbstractCanvas {
       const xInner = (radius - lineLen) * Math.cos(angle);
       const yInner = (radius - lineLen) * Math.sin(angle);
 
-      // Draw the tick mark
       this.drawLine(ctx, xOuter, yOuter, xInner, yInner);
 
       if (i % 10 === 0) {
         ctx.save();
-
-        // Calculate label position slightly inside the big tick mark
         const labelX = (radius - bigLineLen - 10) * Math.cos(angle);
         const labelY = (radius - bigLineLen - 10) * Math.sin(angle);
-
-        // Move the context to the label position
         ctx.translate(labelX, labelY);
-
-        // Rotate the context by the angle, adding Math.PI/2 to make it perpendicular
         ctx.rotate(angle + Math.PI / 2);
-
-        // Align the text horizontally and vertically
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.font = "14px Arial";
-
         ctx.fillText(i.toString(), 0, 0);
-
         ctx.restore();
       }
     }
 
     ctx.restore();
   }
-  //utils
-  drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
+
+  private drawCircle(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    r: number
+  ) {
     ctx.beginPath();
     ctx.arc(x, y, r, 0, 2 * Math.PI);
     ctx.stroke();
   }
-  //draw line
-  drawLine(
+
+  private drawLine(
     ctx: CanvasRenderingContext2D,
     x1: number,
     y1: number,
@@ -127,7 +130,6 @@ export class CircularScale extends AbstractCanvas {
   }
 
   private drawMarker(ctx: CanvasRenderingContext2D) {
-    // draw triangle
     ctx.save();
     ctx.translate(this.canvas.width / 2, this.canvas.height * 0.7);
     ctx.beginPath();
