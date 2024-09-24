@@ -9,37 +9,30 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-
 body {
-
   background-color: #cecece;
 }
 
-
-
 #app {
+  padding: 10px;
   display: flex;
   justify-content: center;
-  gap: 100px;
+  gap: 60px;
   align-items: center;
   min-height: 100vh;
+  width: max-content;
 }
 
-
 #app canvas {
-  width: 400px;
-  height: 500px;
   background-color: white;
 }
 
-
-.canvas-box{
+.ruler-box {
   position: relative;
-  width: max-content;
-  height: max-content;
+  padding: 20px;
 }
 
-.canvas-box .buttons{
+.ruler-box .buttons {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -48,23 +41,25 @@ body {
   position: absolute;
   bottom: 32px;
   width: 100%;
-
+}
+.ruler-box canvas {
+  top: 0;
+  left: 0;
 }
 
-
-.canvas-box .text{
+.ruler-box .text {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
-.canvas-box .text .big-text-ruler{
+.ruler-box .text .big-text-ruler {
   font-size: 60px;
   font-weight: 400;
 }
 
-.canvas-box .text span{
+.ruler-box .text span {
   font-size: 24px;
   color: rgb(94, 94, 94);
 }

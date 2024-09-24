@@ -6,13 +6,17 @@ export class CircularScale extends AbstractCanvas {
   private pointerColor = "#EFB75E";
   private offX = 0;
   private angle = 0;
-  private maxValue = 360;
+  private maxValue = 400;
 
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
     this.redraw();
-
-   
+  }
+  getValue() {
+    return Math.round((this.angle * this.maxValue) / (2 * Math.PI));
+  }
+  setValue(value: number) {
+    this.setAngle((2 * Math.PI * value) / this.maxValue);
   }
 
   setAngle(angle: number) {
@@ -38,10 +42,8 @@ export class CircularScale extends AbstractCanvas {
   protected override onDraw(ctx: CanvasRenderingContext2D): void {
     super.onDraw(ctx);
     ctx.save();
-    ctx.translate(0, this.canvas.height * 0.8);
     this.drawRuler(ctx);
     ctx.restore();
-    this.drawMarker(ctx);
   }
 
   private drawRuler(ctx: CanvasRenderingContext2D) {
@@ -50,59 +52,67 @@ export class CircularScale extends AbstractCanvas {
     const height = canvas.height;
     const centerX = width / 2;
     const centerY = height / 2;
-    const radius = Math.min(width, height);
+    const radius = Math.max(width, 200);
+    const diff = 100;
 
-    ctx.save();
-    ctx.strokeStyle = this.color;
-    ctx.fillStyle = this.color;
+    //find the circle y such that concentric circles are center of canvas
+    const y = centerY + radius - diff / 2;
 
-    ctx.translate(centerX, centerY);
-    ctx.rotate(-this.angle - Math.PI / 2);
-    console.log(this.angle * rad2deg);
+    //draw circle and marks
+    {
+      ctx.save();
+      ctx.translate(centerX, y);
+      ctx.strokeStyle = this.color;
+      ctx.fillStyle = this.color;
 
-    this.drawCircle(ctx, 0, 0, radius);
-    this.drawCircle(ctx, 0, 0, radius - 100);
+      // ctx.translate(centerX, y);
+      ctx.rotate(-this.angle - Math.PI / 2);
+      console.log(this.angle * rad2deg, this.getValue());
 
-    const smallLineLen = 10;
-    const medLineLen = 20;
-    const bigLineLen = 30;
-    const numMarks = 360;
-    const angleStep = (2 * Math.PI) / numMarks;
+      this.drawCircle(ctx, 0, 0, radius);
+      this.drawCircle(ctx, 0, 0, radius - diff);
 
-    for (let i = 0; i < numMarks; i++) {
-      const angle = i * angleStep;
-      const xOuter = radius * Math.cos(angle);
-      const yOuter = radius * Math.sin(angle);
+      const smallLineLen = 10;
+      const medLineLen = 20;
+      const bigLineLen = 30;
+      const numMarks = this.maxValue;
+      const angleStep = (2 * Math.PI) / numMarks;
 
-      let lineLen;
-      if (i % 10 === 0) {
-        lineLen = bigLineLen;
-      } else if (i % 5 === 0) {
-        lineLen = medLineLen;
-      } else {
-        lineLen = smallLineLen;
+      for (let i = 0; i < numMarks; i++) {
+        const angle = i * angleStep;
+        const xOuter = radius * Math.cos(angle);
+        const yOuter = radius * Math.sin(angle);
+
+        let lineLen;
+        if (i % 10 === 0) {
+          lineLen = bigLineLen;
+        } else if (i % 5 === 0) {
+          lineLen = medLineLen;
+        } else {
+          lineLen = smallLineLen;
+        }
+
+        const xInner = (radius - lineLen) * Math.cos(angle);
+        const yInner = (radius - lineLen) * Math.sin(angle);
+
+        this.drawLine(ctx, xOuter, yOuter, xInner, yInner);
+
+        if (i % 10 === 0) {
+          ctx.save();
+          const labelX = (radius - bigLineLen - 10) * Math.cos(angle);
+          const labelY = (radius - bigLineLen - 10) * Math.sin(angle);
+          ctx.translate(labelX, labelY);
+          ctx.rotate(angle + Math.PI / 2);
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.font = "14px Arial";
+          ctx.fillText(i.toString(), 0, 0);
+          ctx.restore();
+        }
       }
-
-      const xInner = (radius - lineLen) * Math.cos(angle);
-      const yInner = (radius - lineLen) * Math.sin(angle);
-
-      this.drawLine(ctx, xOuter, yOuter, xInner, yInner);
-
-      if (i % 10 === 0) {
-        ctx.save();
-        const labelX = (radius - bigLineLen - 10) * Math.cos(angle);
-        const labelY = (radius - bigLineLen - 10) * Math.sin(angle);
-        ctx.translate(labelX, labelY);
-        ctx.rotate(angle + Math.PI / 2);
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.font = "14px Arial";
-        ctx.fillText(i.toString(), 0, 0);
-        ctx.restore();
-      }
+      ctx.restore();
     }
-
-    ctx.restore();
+    this.drawMarker(ctx, centerX, centerY + diff / 2);
   }
 
   private drawCircle(
@@ -129,9 +139,9 @@ export class CircularScale extends AbstractCanvas {
     ctx.stroke();
   }
 
-  private drawMarker(ctx: CanvasRenderingContext2D) {
+  private drawMarker(ctx: CanvasRenderingContext2D, x: number, y: number) {
     ctx.save();
-    ctx.translate(this.canvas.width / 2, this.canvas.height * 0.7);
+    ctx.translate(x, y);
     ctx.beginPath();
     ctx.moveTo(0, -20);
     ctx.lineTo(-10, 0);

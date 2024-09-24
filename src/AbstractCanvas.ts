@@ -6,6 +6,11 @@ export abstract class AbstractCanvas {
   constructor(protected canvas: HTMLCanvasElement) {
     this.ctx = canvas.getContext("2d")!;
     this.addMouseListeners();
+    //resize observer
+    const resizeObserver = new ResizeObserver(() => {
+      this.redraw();
+    });
+    resizeObserver.observe(canvas);
   }
   redraw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
