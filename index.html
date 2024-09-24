@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + TS</title>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="canvas-box">
+        <div class="text">
+          <span class="big-text-ruler">173</span>
+          <span class="small-text">cm</span>
+        </div>
+        <canvas id="ruler-canvas" width="400" height="500"></canvas>
+        <div class="buttons">
+          <button>ft in</button>
+          <button>cm</button>
+        </div>
+      </div>
+      <canvas id="curve-canvas" width="400" height="500"></canvas>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

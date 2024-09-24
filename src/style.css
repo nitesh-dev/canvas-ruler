@@ -1,0 +1,70 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+body {
+
+  background-color: #cecece;
+}
+
+
+
+#app {
+  display: flex;
+  justify-content: center;
+  gap: 100px;
+  align-items: center;
+  min-height: 100vh;
+}
+
+
+#app canvas {
+  width: 400px;
+  height: 500px;
+  background-color: white;
+}
+
+
+.canvas-box{
+  position: relative;
+  width: max-content;
+  height: max-content;
+}
+
+.canvas-box .buttons{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  margin-top: 50px;
+  position: absolute;
+  bottom: 32px;
+  width: 100%;
+
+}
+
+
+.canvas-box .text{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.canvas-box .text .big-text-ruler{
+  font-size: 60px;
+  font-weight: 400;
+}
+
+.canvas-box .text span{
+  font-size: 24px;
+  color: rgb(94, 94, 94);
+}
