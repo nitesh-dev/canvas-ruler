@@ -1,6 +1,7 @@
 import { CircularScale } from "./CircularScale";
 import { LinearScale } from "./LinearScale";
 import "./style.css";
+import { formatInches } from "./utils";
 
 const rulerText = document.querySelector(
   ".ruler-box .text .big-text"
@@ -17,12 +18,16 @@ const linearScale = new LinearScale(
 );
 
 linearScale.addValueChangeListener((value) => {
-  rulerText.innerText = value.toString();
+  if(linearScale.getUnit() === "cm"){
+    rulerText.innerText = value.toString();
+  }else{
+    rulerText.innerText = formatInches(value);
+  }
 });
 
 rulerFtBtn.addEventListener("click", () => {
   linearScale.setUnit("ft");
-  rulerTextUnit.innerHTML = "in";
+  rulerTextUnit.innerHTML = "ft";
 });
 
 rulerCmBtn.addEventListener("click", () => {
@@ -40,7 +45,6 @@ const curveSmallText = document.querySelector(
 ) as HTMLSpanElement;
 
 const buttons = document.querySelectorAll(".curve-box .buttons button");
-console.log(buttons);
 const circularScale = new CircularScale(
   document.getElementById("curve-canvas") as HTMLCanvasElement
 );

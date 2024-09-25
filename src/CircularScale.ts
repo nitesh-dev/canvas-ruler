@@ -53,10 +53,10 @@ export class CircularScale extends AbstractCanvas {
       value = value * 2.20462;
     }
     //constrain value to max value
+    this.value = value;
     if (value > this.maxValue) {
       value = this.maxValue - 1;
     }
-    this.value = value;
     this.setAngle((2 * Math.PI * value) / this.maxValue);
     if (this.onValueChange) {
       this.onValueChange(Math.round(value));

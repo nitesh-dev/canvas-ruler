@@ -51,7 +51,6 @@ export class LinearScale extends AbstractCanvas {
     // }
     this.value = value;
     this.updatePosFromValue(value);
-    // this.setAngle((2 * Math.PI * value) / this.maxValue);
     if (this.onValueChange) {
       this.onValueChange(this.getRoundValue());
     }
@@ -60,18 +59,20 @@ export class LinearScale extends AbstractCanvas {
     return this.unit;
   }
   private updatePosFromValue(value: number) {
-    this.y = (value - this.minValue) * this.spacing - this.canvas.height / 2;
+    let y = (value - this.minValue) * this.spacing - this.canvas.height / 2;
+    this.setY(y);
+    this.redraw();
+  }
+  private setY(y: number) {
+    // limit the y value
+    this.y = y;
     let maxY =
       (this.maxValue - this.minValue) * this.spacing - this.canvas.height / 2;
-
-    // limit the y value
     if (this.y < -this.canvas.height / 2) {
       this.y = -this.canvas.height / 2;
     } else if (this.y > maxY) {
       this.y = maxY;
     }
-
-    this.redraw();
   }
   addValueChangeListener(callback: ValueChangeFun) {
     this.onValueChange = callback;
@@ -84,16 +85,7 @@ export class LinearScale extends AbstractCanvas {
     console.log("down", this.y);
   }
   protected override onDrag(x: number, y: number): void {
-    this.y = y - this.offY;
-    let maxY =
-      (this.maxValue - this.minValue) * this.spacing - this.canvas.height / 2;
-
-    // limit the y value
-    if (this.y < -this.canvas.height / 2) {
-      this.y = -this.canvas.height / 2;
-    } else if (this.y > maxY) {
-      this.y = maxY;
-    }
+    this.setY(y - this.offY);
 
     //calculate value
     let ry = this.y + this.canvas.height / 2;
@@ -177,7 +169,19 @@ export class LinearScale extends AbstractCanvas {
       // Add number labels for long ticks
       if (i % (this.spacing * tickCount) === 0) {
         ctx.font = "14px Arial";
-        const text = (this.maxValue - i / this.spacing).toString();
+
+        let text = "";
+        if (this.unit === "cm") {
+          text = Math.round(this.maxValue - i / this.spacing).toString();
+        } else {
+          const max =
+            ((this.maxValue - this.minValue) * this.spacing) /
+            (this.spacing * tickCount);
+          text = Math.round(
+            max - i / (this.spacing * tickCount)
+          ).toString();
+        }
+
         const textWidth = ctx.measureText(text).width;
 
         ctx.fillText(

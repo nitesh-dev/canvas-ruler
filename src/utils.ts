@@ -13,3 +13,8 @@ export function cmToFeet(cm: number) {
   return { feet, inches };
 }
 
+export function formatInches(inches: number) {
+  const feet = Math.floor(inches / 12);
+  const remainingInches = inches % 12;
+  return `${feet}·${remainingInches}`;
+}
