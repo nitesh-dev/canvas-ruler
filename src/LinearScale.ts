@@ -1,6 +1,8 @@
 import { AbstractCanvas } from "./AbstractCanvas";
+import { cmToFeet } from "./utils";
 
-type CallbackFunction = (value: number) => void;
+type CallbackFunction = (value: number[]) => void;
+
 export class LinearScale extends AbstractCanvas {
   private color = "#adadad";
   private pointerColor = "#EFB75E";
@@ -11,6 +13,11 @@ export class LinearScale extends AbstractCanvas {
   private spacing = 5;
 
   private isInCm = true; // cm or feet (inches)
+
+  changeMeterType(mode: "cm" | "ft") {
+    this.isInCm = mode === "cm";
+    this.redraw();
+  }
 
   constructor(canvas: HTMLCanvasElement, private callback: CallbackFunction) {
     super(canvas);
@@ -49,10 +56,15 @@ export class LinearScale extends AbstractCanvas {
 
   calculateValue() {
     let ry = this.y + this.canvas.height / 2;
-    let step = Math.round(this.minValue + ry / this.spacing);
+    let value = Math.round(this.minValue + ry / this.spacing);
+    if (!this.isInCm) {
+      const out = cmToFeet(value);
 
-    // console.log(this.callback)
-    this.callback(step);
+      this.callback([out.feet, out.inches]);
+    }else{
+      this.callback([value]);
+    }
+
   }
 
   private drawRuler(ctx: CanvasRenderingContext2D) {

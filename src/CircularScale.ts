@@ -1,9 +1,8 @@
 import { AbstractCanvas } from "./AbstractCanvas";
 import { rad2deg } from "./utils";
 
-type NumFun = (value: number) => void;
+type ValueChangeFun = (value: number) => void;
 type Unit = "kg" | "lb";
-type UnitChangeFun = (unit: Unit) => void;
 export class CircularScale extends AbstractCanvas {
   private color = "#adadad";
   private pointerColor = "#EFB75E";
@@ -11,41 +10,57 @@ export class CircularScale extends AbstractCanvas {
   private angle = 0;
   private maxValue = 400;
   private unit: Unit = "kg";
+  private value = 0;
 
-  private onValueChange?: NumFun;
-  private onUnitChange?: UnitChangeFun;
+  private onValueChange?: ValueChangeFun;
 
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
     this.redraw();
   }
-  getValue(unit: Unit = this.unit) {
-    if (unit === "kg") {
-      return Math.round((this.angle * this.maxValue) / (2 * Math.PI));
-    } else {
-      return Math.round(
-        ((this.angle * this.maxValue) / (2 * Math.PI)) * 2.20462
-      );
-    }
+  // protected makeValue() {
+  //   return (this.angle * this.maxValue) / (2 * Math.PI);
+  // }
+  getRoundValue() {
+    return Math.round(this.value);
   }
+  getValue() {
+    return this.value;
+  }
+
   setValue(value: number) {
+    if (value > this.maxValue) {
+      value = this.maxValue - 1;
+    }
+    this.value = value;
     this.setAngle((2 * Math.PI * value) / this.maxValue);
+    if (this.onValueChange) {
+      this.onValueChange(Math.round(value));
+    }
   }
-  setUnit(unit: typeof this.unit) {
+  private updateMaxValue(maxValue: number) {
+    this.maxValue = maxValue;
+  }
+  setUnit(unit: Unit) {
     if (unit == this.unit) return;
-    //conve kg to lb
-    if (unit === "lb") {
-      const lb = this.angle * 2.20462;
-      this.setValue(lb);
-    } else {
-      const kg = this.angle / 2.20462;
-      this.setValue(kg);
-    }
     this.unit = unit;
-    if (this.onUnitChange) {
-      this.onUnitChange(this.unit);
+    let value = this.value;
+    if (unit == "kg") {
+      //lb -> kg
+      value = value / 2.20462;
+    } else {
+      //kg -> lb
+      value = value * 2.20462;
     }
-    this.redraw();
+    //constrain value to max value
+    if (value > this.maxValue) {
+      value = this.maxValue - 1;
+    }
+    this.value = value;
+    this.setAngle((2 * Math.PI * value) / this.maxValue);
+    if (this.onValueChange) {
+      this.onValueChange(Math.round(value));
+    }
   }
   getUnit() {
     return this.unit;
@@ -54,14 +69,10 @@ export class CircularScale extends AbstractCanvas {
   protected setAngle(angle: number) {
     this.angle = angle;
     this.angle = ((this.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-
     this.redraw();
   }
-  addValueChangeListener(callback: NumFun) {
+  addValueChangeListener(callback: ValueChangeFun) {
     this.onValueChange = callback;
-  }
-  addUnitChangeListener(callback: UnitChangeFun) {
-    this.onUnitChange = callback;
   }
 
   protected override onMouseDown(x: number, y: number): void {
@@ -74,9 +85,12 @@ export class CircularScale extends AbstractCanvas {
     this.angle += angleChange;
     this.angle = ((this.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
     this.offX = x;
+    //calculate value
+    const value = (this.angle * this.maxValue) / (2 * Math.PI);
+    this.value = value;
     this.redraw();
     if (this.onValueChange) {
-      this.onValueChange(this.getValue());
+      this.onValueChange(this.getRoundValue());
     }
   }
 
@@ -108,7 +122,6 @@ export class CircularScale extends AbstractCanvas {
 
       // ctx.translate(centerX, y);
       ctx.rotate(-this.angle - Math.PI / 2);
-      console.log(this.angle * rad2deg, this.getValue());
 
       this.drawCircle(ctx, 0, 0, radius);
       this.drawCircle(ctx, 0, 0, radius - diff);

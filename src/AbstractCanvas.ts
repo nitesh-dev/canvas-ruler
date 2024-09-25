@@ -1,4 +1,3 @@
-
 export abstract class AbstractCanvas {
   private ctx: CanvasRenderingContext2D;
   protected dragX: number = 0;
@@ -25,13 +24,19 @@ export abstract class AbstractCanvas {
       const y = e.clientY - rect.top;
       this.onMouseDown(x, y);
       this.isDragging = true;
+      canvas.setPointerCapture(e.pointerId);
     });
-    window.addEventListener("pointerup", (e) => {
+
+    canvas.addEventListener("pointerup", (e) => {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       this.onMouseUp();
       this.isDragging = false;
+    });
+    canvas.addEventListener("pointercancel", (e) => {
+      this.isDragging = false;
+      canvas.releasePointerCapture(e.pointerId);
     });
     canvas.addEventListener("pointermove", (e) => {
       const rect = canvas.getBoundingClientRect();
@@ -44,11 +49,11 @@ export abstract class AbstractCanvas {
     });
   }
 
-  protected onMouseDown(x: number, y: number) { }
-  protected onMouseMove(x: number, y: number) { }
-  protected onMouseUp() { }
+  protected onMouseDown(x: number, y: number) {}
+  protected onMouseMove(x: number, y: number) {}
+  protected onMouseUp() {}
   //drag
-  protected onDrag(x: number, y: number) { }
+  protected onDrag(x: number, y: number) {}
 
-  protected onDraw(ctx: CanvasRenderingContext2D) { }
+  protected onDraw(ctx: CanvasRenderingContext2D) {}
 }
