@@ -21,6 +21,7 @@ body {
   align-items: center;
   min-height: 100vh;
   width: max-content;
+  user-select: none;
 }
 
 #app canvas {
@@ -54,12 +55,51 @@ body {
   transform: translate(-50%, -50%);
 }
 
-.ruler-box .text .big-text-ruler {
+.ruler-box .text .big-text {
   font-size: 60px;
   font-weight: 400;
 }
 
 .ruler-box .text span {
+  font-size: 24px;
+  color: rgb(94, 94, 94);
+}
+
+/* ------------- */
+
+.curve-box {
+  position: relative;
+  padding: 20px;
+}
+
+.curve-box .buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  margin-top: 50px;
+  position: absolute;
+  bottom: 32px;
+  width: 100%;
+}
+.curve-box canvas {
+  top: 0;
+  left: 0;
+}
+
+.curve-box .text {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.curve-box .text .big-text {
+  font-size: 60px;
+  font-weight: 400;
+}
+
+.curve-box .text span {
   font-size: 24px;
   color: rgb(94, 94, 94);
 }

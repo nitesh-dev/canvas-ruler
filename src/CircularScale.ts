@@ -1,29 +1,67 @@
 import { AbstractCanvas } from "./AbstractCanvas";
 import { rad2deg } from "./utils";
 
+type NumFun = (value: number) => void;
+type Unit = "kg" | "lb";
+type UnitChangeFun = (unit: Unit) => void;
 export class CircularScale extends AbstractCanvas {
   private color = "#adadad";
   private pointerColor = "#EFB75E";
   private offX = 0;
   private angle = 0;
   private maxValue = 400;
+  private unit: Unit = "kg";
+
+  private onValueChange?: NumFun;
+  private onUnitChange?: UnitChangeFun;
 
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
     this.redraw();
   }
-  getValue() {
-    return Math.round((this.angle * this.maxValue) / (2 * Math.PI));
+  getValue(unit: Unit = this.unit) {
+    if (unit === "kg") {
+      return Math.round((this.angle * this.maxValue) / (2 * Math.PI));
+    } else {
+      return Math.round(
+        ((this.angle * this.maxValue) / (2 * Math.PI)) * 2.20462
+      );
+    }
   }
   setValue(value: number) {
     this.setAngle((2 * Math.PI * value) / this.maxValue);
   }
+  setUnit(unit: typeof this.unit) {
+    if (unit == this.unit) return;
+    //conve kg to lb
+    if (unit === "lb") {
+      const lb = this.angle * 2.20462;
+      this.setValue(lb);
+    } else {
+      const kg = this.angle / 2.20462;
+      this.setValue(kg);
+    }
+    this.unit = unit;
+    if (this.onUnitChange) {
+      this.onUnitChange(this.unit);
+    }
+    this.redraw();
+  }
+  getUnit() {
+    return this.unit;
+  }
 
-  setAngle(angle: number) {
+  protected setAngle(angle: number) {
     this.angle = angle;
     this.angle = ((this.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
 
     this.redraw();
+  }
+  addValueChangeListener(callback: NumFun) {
+    this.onValueChange = callback;
+  }
+  addUnitChangeListener(callback: UnitChangeFun) {
+    this.onUnitChange = callback;
   }
 
   protected override onMouseDown(x: number, y: number): void {
@@ -37,6 +75,9 @@ export class CircularScale extends AbstractCanvas {
     this.angle = ((this.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
     this.offX = x;
     this.redraw();
+    if (this.onValueChange) {
+      this.onValueChange(this.getValue());
+    }
   }
 
   protected override onDraw(ctx: CanvasRenderingContext2D): void {
@@ -53,7 +94,7 @@ export class CircularScale extends AbstractCanvas {
     const centerX = width / 2;
     const centerY = height / 2;
     const radius = Math.max(width, 200);
-    const diff = 100;
+    const diff = 90;
 
     //find the circle y such that concentric circles are center of canvas
     const y = centerY + radius - diff / 2;
