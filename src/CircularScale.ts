@@ -68,6 +68,7 @@ export class CircularScale extends AbstractCanvas {
 
   protected setAngle(angle: number) {
     this.angle = angle;
+    //set constrain angle
     this.angle = ((this.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
     this.redraw();
   }

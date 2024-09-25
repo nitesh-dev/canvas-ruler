@@ -1,35 +1,109 @@
 import { AbstractCanvas } from "./AbstractCanvas";
 import { cmToFeet } from "./utils";
 
-type CallbackFunction = (value: number[]) => void;
-
+type ValueChangeFun = (value: number) => void;
+type Unit = "cm" | "ft";
 export class LinearScale extends AbstractCanvas {
   private color = "#adadad";
   private pointerColor = "#EFB75E";
   private offY: number = 0;
   private y: number = 0;
   private maxValue = 50 * 10;
-  private minValue = 10 * 10;
+  private minValue = 0 * 10;
   private spacing = 5;
+  private unit: Unit = "cm";
+  private value = 0;
+  private onValueChange?: ValueChangeFun;
 
-  private isInCm = true; // cm or feet (inches)
-
-  changeMeterType(mode: "cm" | "ft") {
-    this.isInCm = mode === "cm";
-    this.redraw();
-  }
-
-  constructor(canvas: HTMLCanvasElement, private callback: CallbackFunction) {
+  constructor(canvas: HTMLCanvasElement) {
     super(canvas);
+    this.updatePosFromValue(this.value);
+  }
+  getRoundValue() {
+    return Math.round(this.value);
+  }
+  getValue() {
+    return this.value;
+  }
+  setValue(value: number) {
+    this.value = value;
+    this.updatePosFromValue(value);
+
+    if (this.onValueChange) {
+      this.onValueChange(this.getRoundValue());
+    }
+  }
+
+  setUnit(unit: Unit) {
+    if (unit == this.unit) return;
+    this.unit = unit;
+    let value = this.value;
+    if (unit == "cm") {
+      //ft -> cm
+      value = value * 2.54;
+    } else {
+      //cm -> ft
+      value = value / 2.54;
+    }
+    //constrain value to max value
+    // if (value > this.maxValue) {
+    //   value = this.maxValue - 1;
+    // }
+    this.value = value;
+    this.updatePosFromValue(value);
+    // this.setAngle((2 * Math.PI * value) / this.maxValue);
+    if (this.onValueChange) {
+      this.onValueChange(this.getRoundValue());
+    }
+  }
+  getUnit() {
+    return this.unit;
+  }
+  private updatePosFromValue(value: number) {
+    this.y = (value - this.minValue) * this.spacing - this.canvas.height / 2;
+    let maxY =
+      (this.maxValue - this.minValue) * this.spacing - this.canvas.height / 2;
+
+    // limit the y value
+    if (this.y < -this.canvas.height / 2) {
+      this.y = -this.canvas.height / 2;
+    } else if (this.y > maxY) {
+      this.y = maxY;
+    }
+
     this.redraw();
   }
+  addValueChangeListener(callback: ValueChangeFun) {
+    this.onValueChange = callback;
+    this.onValueChange(this.getRoundValue());
+    this.redraw();
+  }
+
   protected override onMouseDown(x: number, y: number): void {
     this.offY = y - this.y;
     console.log("down", this.y);
   }
   protected override onDrag(x: number, y: number): void {
     this.y = y - this.offY;
+    let maxY =
+      (this.maxValue - this.minValue) * this.spacing - this.canvas.height / 2;
+
+    // limit the y value
+    if (this.y < -this.canvas.height / 2) {
+      this.y = -this.canvas.height / 2;
+    } else if (this.y > maxY) {
+      this.y = maxY;
+    }
+
+    //calculate value
+    let ry = this.y + this.canvas.height / 2;
+    let value = this.minValue + ry / this.spacing;
+    this.value = value;
+
     this.redraw();
+    if (this.onValueChange) {
+      this.onValueChange(this.getRoundValue());
+    }
   }
   protected override onDraw(ctx: CanvasRenderingContext2D): void {
     super.onDraw(ctx);
@@ -51,20 +125,18 @@ export class LinearScale extends AbstractCanvas {
     ctx.restore();
     this.drawMarker(ctx);
 
-    this.calculateValue();
+    // this.calculateValue();
   }
 
   calculateValue() {
-    let ry = this.y + this.canvas.height / 2;
-    let value = Math.round(this.minValue + ry / this.spacing);
-    if (!this.isInCm) {
-      const out = cmToFeet(value);
-
-      this.callback([out.feet, out.inches]);
-    }else{
-      this.callback([value]);
-    }
-
+    // let ry = this.y + this.canvas.height / 2;
+    // let value = Math.round(this.minValue + ry / this.spacing);
+    // if (!this.isInCm) {
+    // const out = cmToFeet(value);
+    //   this.callback([out.feet, out.inches]);
+    // } else {
+    //   this.callback([value]);
+    // }
   }
 
   private drawRuler(ctx: CanvasRenderingContext2D) {

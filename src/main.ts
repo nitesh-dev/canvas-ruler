@@ -13,23 +13,20 @@ const rulerCmBtn = document.querySelector("#cm-button") as HTMLButtonElement;
 const rulerTextUnit = document.querySelector("#ruler-unit");
 
 const linearScale = new LinearScale(
-  document.getElementById("ruler-canvas") as HTMLCanvasElement,
-  (value) => {
-    if (value.length == 2) {
-      rulerText.innerText = value[0] + "·" + value[1];
-    } else {
-      rulerText.innerText = value.toString();
-    }
-  }
+  document.getElementById("ruler-canvas") as HTMLCanvasElement
 );
 
+linearScale.addValueChangeListener((value) => {
+  rulerText.innerText = value.toString();
+});
+
 rulerFtBtn.addEventListener("click", () => {
-  linearScale.changeMeterType("ft");
-  rulerTextUnit.innerHTML = "ft";
+  linearScale.setUnit("ft");
+  rulerTextUnit.innerHTML = "in";
 });
 
 rulerCmBtn.addEventListener("click", () => {
-  linearScale.changeMeterType("cm");
+  linearScale.setUnit("cm");
   rulerTextUnit.innerHTML = "cm";
 });
 

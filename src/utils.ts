@@ -12,3 +12,4 @@ export function cmToFeet(cm: number) {
   const inches = Math.round(totalInches % 12);
   return { feet, inches };
 }
+
