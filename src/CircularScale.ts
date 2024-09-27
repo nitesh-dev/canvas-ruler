@@ -34,6 +34,7 @@ export class CircularScale extends AbstractCanvas {
     }
     this.value = value;
     this.setAngle((2 * Math.PI * value) / this.maxValue);
+    
     if (this.onValueChange) {
       this.onValueChange(Math.round(value));
     }
@@ -61,6 +62,8 @@ export class CircularScale extends AbstractCanvas {
     if (this.onValueChange) {
       this.onValueChange(Math.round(value));
     }
+
+    
   }
   getUnit() {
     return this.unit;

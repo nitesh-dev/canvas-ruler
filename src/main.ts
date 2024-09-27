@@ -7,7 +7,6 @@ const rulerText = document.querySelector(
   ".ruler-box .text .big-text"
 ) as HTMLSpanElement;
 
-
 const width = 300;
 const height = 300;
 const canvasList = document.querySelectorAll("canvas");
@@ -15,7 +14,6 @@ canvasList.forEach((canvas) => {
   canvas.width = width;
   canvas.height = height;
 });
-
 
 const rulerFtBtn = document.querySelector("#ft-button") as HTMLButtonElement;
 
@@ -29,10 +27,12 @@ const linearScale = new LinearScale(
 
 linearScale.addValueChangeListener((value) => {
   console.log("value", value);
-  if(linearScale.getUnit() === "cm"){
+  if (linearScale.getUnit() === "cm") {
     rulerText.innerText = value.toString();
-  }else{
+    rulerTextUnit.innerHTML = "cm";
+  } else {
     rulerText.innerText = formatInches(value);
+    rulerTextUnit.innerHTML = "ft";
   }
 });
 
@@ -65,7 +65,16 @@ const circularScale = new CircularScale(
 
 circularScale.addValueChangeListener((value) => {
   curveBigText.innerText = Math.round(value).toString();
+  if (circularScale.getUnit() === "kg") {
+    curveSmallText.innerText = "kg";
+  } else {
+    curveSmallText.innerText = "lb";
+  }
+  console.log("cvalue", value);
 });
+
+circularScale.setUnit("lb");
+circularScale.setValue(70);
 
 buttons.forEach((button) => {
   button.addEventListener("click", (e) => {
@@ -76,4 +85,3 @@ buttons.forEach((button) => {
     curveBigText.innerText = circularScale.getRoundValue().toString();
   });
 });
-
