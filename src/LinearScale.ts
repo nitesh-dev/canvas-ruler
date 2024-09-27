@@ -36,6 +36,7 @@ export class LinearScale extends AbstractCanvas {
 
   setUnit(unit: Unit) {
     if (unit == this.unit) return;
+    this.maxValue = unit == "cm" ? (this.maxValue / 12) * 10 : (this.maxValue / 10) * 12;
     this.unit = unit;
     let value = this.value;
     if (unit == "cm") {
@@ -76,7 +77,6 @@ export class LinearScale extends AbstractCanvas {
   }
   addValueChangeListener(callback: ValueChangeFun) {
     this.onValueChange = callback;
-    this.onValueChange(this.getRoundValue());
     this.redraw();
   }
 
@@ -138,7 +138,7 @@ export class LinearScale extends AbstractCanvas {
     const tickWidth = 20;
     const midTickWidth = 30;
     const longTickWidth = 40;
-    const tickCount = 10;
+    let tickCount = 10;
 
     ctx.strokeStyle = this.color;
     ctx.fillStyle = this.color;
@@ -148,18 +148,29 @@ export class LinearScale extends AbstractCanvas {
       -(this.maxValue - this.minValue) * this.spacing + this.canvas.height
     );
 
-    for (
-      let i = 0;
-      i <= (this.maxValue - this.minValue) * this.spacing;
-      i += this.spacing
-    ) {
-      
-      let tickLength =
-        i % (this.spacing * 10) === 0
-          ? longTickWidth
-          : i % (this.spacing * 5) === 0
-          ? midTickWidth
-          : tickWidth;
+    if (this.unit == "ft") {
+      tickCount = 12;
+    }
+
+    let max = (this.maxValue - this.minValue) * this.spacing;
+
+    for (let i = 0; i <= max; i += this.spacing) {
+      let tickLength = 0;
+      if (this.unit == "cm") {
+        tickLength =
+          i % (this.spacing * 10) === 0
+            ? longTickWidth
+            : i % (this.spacing * 5) === 0
+            ? midTickWidth
+            : tickWidth;
+      } else {
+        tickLength =
+          i % (this.spacing * 12) === 0
+            ? longTickWidth
+            : i % (this.spacing * 6) === 0
+            ? midTickWidth
+            : tickWidth;
+      }
 
       // Draw tick mark
       ctx.beginPath();
@@ -178,9 +189,7 @@ export class LinearScale extends AbstractCanvas {
           const max =
             ((this.maxValue - this.minValue) * this.spacing) /
             (this.spacing * tickCount);
-          text = Math.round(
-            max - i / (this.spacing * tickCount)
-          ).toString();
+          text = Math.round(max - i / (this.spacing * tickCount)).toString();
         }
 
         const textWidth = ctx.measureText(text).width;

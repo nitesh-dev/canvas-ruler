@@ -28,6 +28,7 @@ const linearScale = new LinearScale(
 );
 
 linearScale.addValueChangeListener((value) => {
+  console.log("value", value);
   if(linearScale.getUnit() === "cm"){
     rulerText.innerText = value.toString();
   }else{
