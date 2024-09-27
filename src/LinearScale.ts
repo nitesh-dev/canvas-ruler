@@ -153,6 +153,7 @@ export class LinearScale extends AbstractCanvas {
       i <= (this.maxValue - this.minValue) * this.spacing;
       i += this.spacing
     ) {
+      
       let tickLength =
         i % (this.spacing * 10) === 0
           ? longTickWidth

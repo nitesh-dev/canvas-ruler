@@ -35,7 +35,7 @@ linearScale.addValueChangeListener((value) => {
   }
 });
 
-linearScale.setUnit("cm");
+linearScale.setUnit("ft");
 linearScale.setValue(70);
 
 rulerFtBtn.addEventListener("click", () => {
