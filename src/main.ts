@@ -7,6 +7,16 @@ const rulerText = document.querySelector(
   ".ruler-box .text .big-text"
 ) as HTMLSpanElement;
 
+
+const width = 300;
+const height = 300;
+const canvasList = document.querySelectorAll("canvas");
+canvasList.forEach((canvas) => {
+  canvas.width = width;
+  canvas.height = height;
+});
+
+
 const rulerFtBtn = document.querySelector("#ft-button") as HTMLButtonElement;
 
 const rulerCmBtn = document.querySelector("#cm-button") as HTMLButtonElement;
@@ -24,6 +34,9 @@ linearScale.addValueChangeListener((value) => {
     rulerText.innerText = formatInches(value);
   }
 });
+
+linearScale.setUnit("cm");
+linearScale.setValue(70);
 
 rulerFtBtn.addEventListener("click", () => {
   linearScale.setUnit("ft");
@@ -63,10 +76,3 @@ buttons.forEach((button) => {
   });
 });
 
-const width = 300;
-const height = 300;
-const canvasList = document.querySelectorAll("canvas");
-canvasList.forEach((canvas) => {
-  canvas.width = width;
-  canvas.height = height;
-});
